@@ -21,9 +21,18 @@
 
       <transition name="fade" v-else>
         <div class="secret-content" :key="secret?.id">
-          <p class="secret-text">"{{ secret.content }}"</p>
-          <div class="secret-footer">
-            <span class="status-badge">{{ secret.status }}</span>
+          <div class="secret-clickable" @click="goToDetail(secret.id)">
+            <div class="secret-top-row">
+              <span class="mood-tag" v-if="secret.mood">{{ moodIcon }} {{ secret.mood }}</span>
+              <span class="light-hint">🕯️ {{ secret.lightCount || 0 }}</span>
+            </div>
+            <p class="secret-text">"{{ secret.content }}"</p>
+            <div class="secret-footer">
+              <span class="status-badge">{{ secret.status }}</span>
+              <span class="detail-link">查看详情 →</span>
+            </div>
+          </div>
+          <div class="refresh-row">
             <button class="btn btn-secondary refresh-btn" @click="fetchRandomSecret">
               🔄 换一个
             </button>
@@ -41,7 +50,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -49,6 +58,13 @@ const loading = ref(true)
 const hasSecret = ref(false)
 const secret = ref(null)
 const message = ref('')
+
+const moodIconMap = {
+  '愧疚': '😢', '孤独': '🌙', '焦虑': '😰', '遗憾': '🍂',
+  '愤怒': '🔥', '嫉妒': '💚', '迷茫': '🌫️', '自责': '😔'
+}
+
+const moodIcon = computed(() => moodIconMap[secret.value?.mood] || '💫')
 
 async function fetchRandomSecret() {
   loading.value = true
@@ -69,6 +85,10 @@ async function fetchRandomSecret() {
 
 function goToConfess() {
   router.push('/confess')
+}
+
+function goToDetail(id) {
+  router.push(`/secret/${id}`)
 }
 
 onMounted(() => {
@@ -157,6 +177,46 @@ onMounted(() => {
   padding: 20px 0;
 }
 
+.secret-clickable {
+  cursor: pointer;
+  border-radius: 16px;
+  padding: 16px;
+  margin: -16px;
+  transition: all 0.3s ease;
+}
+
+.secret-clickable:hover {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.secret-clickable:hover .detail-link {
+  opacity: 1;
+}
+
+.secret-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.mood-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+  color: #4a3f6b;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.light-hint {
+  font-size: 13px;
+  color: #999;
+}
+
 .secret-text {
   font-size: 20px;
   line-height: 1.8;
@@ -184,20 +244,21 @@ onMounted(() => {
   font-weight: 500;
 }
 
+.detail-link {
+  font-size: 14px;
+  color: #667eea;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.refresh-row {
+  margin-top: 20px;
+  text-align: center;
+}
+
 .refresh-btn {
   padding: 8px 20px;
   font-size: 14px;
-  color: #666;
-  background: #f0f0f0;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.refresh-btn:hover {
-  background: #e0e0e0;
-  transform: translateY(-1px);
 }
 
 .card-actions {

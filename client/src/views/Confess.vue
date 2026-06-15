@@ -13,6 +13,22 @@
       </div>
 
       <div class="form-group">
+        <label class="form-label">选择心情主题</label>
+        <div class="mood-selector">
+          <button
+            v-for="m in moods"
+            :key="m.name"
+            class="mood-chip"
+            :class="{ active: selectedMood === m.name }"
+            @click="selectedMood = m.name"
+            :disabled="submitting"
+          >
+            {{ m.icon }} {{ m.name }}
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
         <textarea
           v-model="secretContent"
           class="secret-input"
@@ -77,10 +93,22 @@ import ForgivenessAnimation from '../components/ForgivenessAnimation.vue'
 
 const router = useRouter()
 const secretContent = ref('')
+const selectedMood = ref('')
 const submitting = ref(false)
 const error = ref('')
 const showAnimation = ref(false)
 const showComplete = ref(false)
+
+const moods = [
+  { name: '愧疚', icon: '😢' },
+  { name: '孤独', icon: '🌙' },
+  { name: '焦虑', icon: '😰' },
+  { name: '遗憾', icon: '🍂' },
+  { name: '愤怒', icon: '🔥' },
+  { name: '嫉妒', icon: '💚' },
+  { name: '迷茫', icon: '🌫️' },
+  { name: '自责', icon: '😔' }
+]
 
 async function submitSecret() {
   if (!secretContent.value.trim()) {
@@ -103,7 +131,8 @@ async function submitSecret() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        content: secretContent.value
+        content: secretContent.value,
+        mood: selectedMood.value
       })
     })
 
@@ -129,6 +158,7 @@ function handleAnimationComplete() {
 
 function resetForm() {
   secretContent.value = ''
+  selectedMood.value = ''
   showComplete.value = false
   error.value = ''
   submitting.value = false
@@ -187,6 +217,48 @@ function goHome() {
 .form-group {
   margin-bottom: 25px;
   position: relative;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.mood-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mood-chip {
+  padding: 6px 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 18px;
+  background: #fafafa;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  color: #555;
+}
+
+.mood-chip:hover {
+  border-color: #667eea;
+  background: #f8f4ff;
+}
+
+.mood-chip.active {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.mood-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .secret-input {
