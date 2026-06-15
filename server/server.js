@@ -40,11 +40,19 @@ app.post('/api/secrets', (req, res) => {
       return res.status(400).json({ error: '秘密内容不能为空' });
     }
 
+    if (!mood) {
+      return res.status(400).json({ error: '请选择心情主题' });
+    }
+
+    if (!MOODS.includes(mood)) {
+      return res.status(400).json({ error: '心情主题不合法' });
+    }
+
     const secrets = readSecrets();
     const newSecret = {
       id: uuidv4(),
       content: content.trim(),
-      mood: mood || '',
+      mood: mood,
       status: '已宽恕',
       lightCount: 0,
       comfortReplies: [],
@@ -132,12 +140,6 @@ app.get('/api/secrets/:id/related', (req, res) => {
       s.status === '已宽恕' &&
       s.mood === current.mood
     );
-
-    if (related.length === 0) {
-      related = secrets.filter(s =>
-        s.id !== current.id && s.status === '已宽恕'
-      );
-    }
 
     related = related.slice(0, 4);
 

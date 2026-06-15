@@ -49,7 +49,7 @@
         <button
           class="btn btn-primary submit-btn"
           @click="submitSecret"
-          :disabled="submitting || !secretContent.trim() || secretContent.length > 500"
+          :disabled="submitting || !secretContent.trim() || !selectedMood || secretContent.length > 500"
         >
           <span v-if="submitting">
             <span class="btn-spinner"></span>
@@ -113,6 +113,11 @@ const moods = [
 async function submitSecret() {
   if (!secretContent.value.trim()) {
     error.value = '请输入你想倾诉的内容'
+    return
+  }
+
+  if (!selectedMood.value) {
+    error.value = '请选择一个心情主题'
     return
   }
 
